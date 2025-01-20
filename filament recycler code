@@ -1,0 +1,82 @@
+// Function Declarations
+void endStopChoose();
+void motor1Control();
+void motor2Control();
+
+// Motor 1 pins (X-axis)
+const int stepXPin = 2;   // X.STEP
+const int dirXPin = 5;    // X.DIR
+
+// Motor 2 pins (Y-axis)
+const int stepYPin = 3;   // Y.STEP
+const int dirYPin = 6;    // Y.DIR
+
+// Other pins
+const int enPin = 8;       // Enable pin
+const int beginSwitch = 9; // Begin switch
+const int endSwitch = 10;  // End switch
+
+// Potentiometer for motor 2 speed
+const int potPin = A0;     // Potentiometer pin
+
+// other
+#define stepsPerRevolution 20 // omwentelingen van de motoren
+
+bool endStopState = true;
+
+void setup() {
+  Serial.begin(9600);
+
+  // Configure the pins
+  pinMode(stepXPin, OUTPUT);
+  pinMode(dirXPin, OUTPUT);
+  pinMode(stepYPin, OUTPUT);
+  pinMode(dirYPin, OUTPUT);
+  pinMode(enPin, OUTPUT);
+  pinMode(beginSwitch, INPUT_PULLUP);
+  pinMode(endSwitch, INPUT_PULLUP);
+
+  // Enable the motors
+  digitalWrite(enPin, LOW);  // motoren aan
+}
+
+void loop() {
+  endStopChoose();
+  motor1Control();
+}
+
+void endStopChoose() {
+  if (digitalRead(beginSwitch) == LOW) {
+    endStopState = false; 
+    }
+  if (digitalRead(endSwitch) == LOW) {
+    endStopState = true;
+  }
+}
+
+void motor1Control() {
+  // dit is de motor die op basis van de eindschakelaar input van draairichting veranderd.
+  if (endStopState == true) {
+    digitalWrite(dirXPin, HIGH);
+  } else {
+    digitalWrite(dirXPin, LOW);
+  }
+
+for (int i = 0; i < stepsPerRevolution; i++) {
+    // These four lines result in 1 step:
+    digitalWrite(stepXPin, HIGH);
+    delayMicroseconds(3000);
+    digitalWrite(stepXPin, LOW);
+    delayMicroseconds(3000);
+  }
+}
+
+void motor2Control() {
+  int sensorValue = analogRead(potPin); // dit is de motor waarbij de snelheid word geregeld door de potentio meter.
+  map(sensorValue, 0, 1023, 2000, 3000);
+
+  digitalWrite(stepYPin, HIGH);
+  delayMicroseconds(sensorValue);
+  digitalWrite(stepYPin, LOW);
+  delayMicroseconds(sensorValue);
+}
