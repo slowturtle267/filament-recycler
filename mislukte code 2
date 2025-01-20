@@ -1,0 +1,69 @@
+void endStopChoose();
+void motor1Control();
+void motor2Control();
+
+// Motor 1 pinnen (X-as)
+const int stepXPin = 2;   // X.STEP
+const int dirXPin = 5;    // X.DIR
+
+// Motor 2 pinnen (Y-as)
+const int stepYPin = 3;   // Y.STEP
+const int dirYPin = 6;    // Y.DIR
+
+// Andere pinnen
+const int enPin = 8;      // Enable pin
+const int beginSwitch = 9; // Begin-schakelaar
+const int endSwitch = 10;  // Eind-schakelaar
+
+// Potmeter voor motor 2 snelheid
+const int potPin = A0;    // Potmeter pin
+
+//---------Parameters
+// Parameters stepper motor
+const int stepsPerRev = 200; // Aantal stappen per volledige rotatie
+int pulseWidthMicros = 100;  // Microseconden tussen stappen (voor motor 1)
+int millisBtwnSteps = 1000;  // Tijd tussen stappen in milliseconden
+
+// Variabelen voor motor 2 snelheid
+int potValue = 0;           // Potmeter waarde
+int motorSpeed = 0;         // Motor snelheid
+
+// Tijdstempels voor snelheid opbouwen
+unsigned long lastStepTimeMotor2 = 0; 
+unsigned long motor2StepInterval = 0;
+
+bool endStopState = true;
+
+void setup() {
+  Serial.begin(9600);
+  // Stel de pinnen in
+  pinMode(stepXPin  dirXPin  stepYPin  dirYPin  enPin, OUTPUT);
+  pinMode(beginSwitch || endSwitch, INPUT_PULLUP);
+
+  // Zet de motoren in de juiste modus
+  digitalWrite(enPin, LOW);  // Zet de motoren aan
+}
+
+void loop() {
+  endStopChoose();
+  motor1Control();
+}
+
+void endStopChoose() {
+  if(beginSwitch == LOW) {
+    endStopState = false;
+  } else if (endSwitch == LOW) {
+    endStopState = true;
+  }
+};
+
+void motor1Control() {
+  if(endStopState = true) {
+    digitalWrite(dirXPin, LOW);
+  } else if (endStopState = false) {
+    digitalWrite(dirXPin, HIGH);
+  }
+
+  digitalWrite(stepXPin, HIGH);
+  delayMicroseconds(pulseWidthMicros);
+}
