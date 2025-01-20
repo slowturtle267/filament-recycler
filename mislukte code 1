@@ -1,0 +1,51 @@
+const int enPin = 8;        // Enable pin voor de motoren
+const int step2Pin = 12;    // STEP pin voor Motor 2
+const int dir2Pin = 13;     // DIR pin voor Motor 2
+
+const int beginSwitch = 9;  // Begin-schakelaar
+const int endSwitch = 10;   // Eind-schakelaar
+
+const int pulseWidthMicros = 100;  // Pulslengte in microseconden
+const int motorSpeed = 2000;       // Snelheid van Motor 2 (delay tussen stappen)
+bool motor2Direction = true;       // Draairichting Motor 2
+
+void setup() {
+  // Seriële communicatie voor debugging
+  Serial.begin(9600);
+
+  // Instellen van pinmodi
+  pinMode(enPin, OUTPUT);
+  digitalWrite(enPin, LOW); // Motoren ingeschakeld
+
+  pinMode(step2Pin, OUTPUT);
+  pinMode(dir2Pin, OUTPUT);
+
+  pinMode(beginSwitch, INPUT_PULLUP); // Eindschakelaars
+  pinMode(endSwitch, INPUT_PULLUP);
+
+  // Debugging
+  Serial.println(F("CNC Shield Initialized"));
+}
+
+void loop() {
+  // Lees de status van de eindschakelaars
+  if (digitalRead(beginSwitch) == LOW) {
+    motor2Direction = true;  // Draai vooruit
+    delay(200);              // Debounce
+    Serial.println("Motor draait vooruit (Begin-schakelaar ingedrukt)");
+  } 
+  else if (digitalRead(endSwitch) == LOW) {
+    motor2Direction = false; // Draai achteruit
+    delay(200);              // Debounce
+    Serial.println("Motor draait achteruit (Eind-schakelaar ingedrukt)");
+  }
+
+  // Stel de draairichting van Motor 2 in
+  digitalWrite(dir2Pin, motor2Direction ? HIGH : LOW);
+
+  // Continu draaien van Motor 2
+  digitalWrite(step2Pin, HIGH);
+  delayMicroseconds(pulseWidthMicros);
+  digitalWrite(step2Pin, LOW);
+  delayMicroseconds(motorSpeed); // Vertraag tussen stappen
+}
